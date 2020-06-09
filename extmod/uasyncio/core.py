@@ -110,6 +110,7 @@ class IOQueue:
                 break
 
     def wait_io_event(self, dt):
+        unregister = None
         for s, ev in self.poller.ipoll(dt):
             sm = self.map[id(s)]
             # print('poll', s, sm, ev)
@@ -122,11 +123,17 @@ class IOQueue:
                 _task_queue.push_head(sm[1])
                 sm[1] = None
             if sm[0] is None and sm[1] is None:
-                self._dequeue(s)
+                if unregister is None:
+                    unregister = [s]
+                else:
+                    unregister.append(s)
             elif sm[0] is None:
                 self.poller.modify(s, select.POLLOUT)
             else:
                 self.poller.modify(s, select.POLLIN)
+
+        if unregister:
+            [self._dequeue(s) for s in unregister]
 
 
 ################################################################################
