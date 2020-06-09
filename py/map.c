@@ -198,6 +198,7 @@ mp_map_elem_t *mp_map_lookup(mp_map_t *map, mp_obj_t index, mp_map_lookup_kind_t
         }
         mp_map_elem_t *elem = map->table + map->used++;
         elem->key = index;
+        elem->value = MP_OBJ_NULL;
         if (!mp_obj_is_qstr(index)) {
             map->all_keys_are_qstrs = 0;
         }
